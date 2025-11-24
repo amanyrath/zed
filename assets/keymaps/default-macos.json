@@ -692,6 +692,8 @@
       "cmd-shift-b": "outline_panel::ToggleFocus",
       "ctrl-shift-g": "git_panel::ToggleFocus",
       "cmd-shift-d": "debug_panel::ToggleFocus",
+      "cmd-shift-r": "code_review::ToggleFocus",
+      "cmd-alt-r": "code_review::ReviewSelection",
       "cmd-?": "agent::ToggleFocus",
       "cmd-alt-s": "workspace::SaveAll",
       "cmd-k m": "language_selector::Toggle",

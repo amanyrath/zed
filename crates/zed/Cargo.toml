@@ -38,6 +38,7 @@ cli.workspace = true
 client.workspace = true
 codestral.workspace = true
 collab_ui.workspace = true
+code_review_assistant.workspace = true
 collections.workspace = true
 command_palette.workspace = true
 component.workspace = true

@@ -3296,6 +3296,35 @@ dependencies = [
 ]
 
 [[package]]
+name = "code_review_assistant"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "collections",
+ "editor",
+ "feature_flags",
+ "fs",
+ "futures 0.3.31",
+ "gpui",
+ "language",
+ "language_model",
+ "log",
+ "multi_buffer",
+ "panel",
+ "parking_lot",
+ "project",
+ "schemars",
+ "serde",
+ "serde_json",
+ "settings",
+ "text",
+ "theme",
+ "ui",
+ "util",
+ "workspace",
+]
+
+[[package]]
 name = "codespan-reporting"
 version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -21190,6 +21219,7 @@ dependencies = [
  "clap",
  "cli",
  "client",
+ "code_review_assistant",
  "codestral",
  "collab_ui",
  "collections",

@@ -35,6 +35,7 @@ members = [
     "crates/cloud_zeta2_prompt",
     "crates/collab",
     "crates/collab_ui",
+    "crates/code_review_assistant",
     "crates/collections",
     "crates/command_palette",
     "crates/command_palette_hooks",
@@ -270,6 +271,7 @@ cloud_llm_client = { path = "crates/cloud_llm_client" }
 cloud_zeta2_prompt = { path = "crates/cloud_zeta2_prompt" }
 collab = { path = "crates/collab" }
 collab_ui = { path = "crates/collab_ui" }
+code_review_assistant = { path = "crates/code_review_assistant" }
 collections = { path = "crates/collections", version = "0.1.0" }
 command_palette = { path = "crates/command_palette" }
 command_palette_hooks = { path = "crates/command_palette_hooks" }
