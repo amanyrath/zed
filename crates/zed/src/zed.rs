@@ -654,7 +654,7 @@ fn initialize_panels(
             workspace_handle.clone(),
             cx.clone(),
         );
-        let debug_panel = DebugPanel::load(workspace_handle.clone(), cx.clone());
+        let debug_panel = DebugPanel::load(workspace_handle.clone(), cx);
         let agent_debug_panel = AgentDebugPanel::load(workspace_handle.clone(), cx);
 
         async fn add_panel_when_ready(

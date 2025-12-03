@@ -672,7 +672,7 @@ impl AcpThreadView {
                                         if *tracker.status() == AgentActivityStatus::Active {
                                             let proto_activity = proto::AgentActivity {
                                                 user_id,
-                                                agent_type: tracker.agent_type().map(|s| s.to_string()).unwrap_or_default(),
+                                                agent_type: tracker.agent_type().map(|s| s.to_string()).unwrap_or_else(|| "Unknown".to_string()),
                                                 status: proto::AgentActivityStatus::AgentActive as i32,
                                                 prompt_summary: tracker.prompt_summary().map(|s| s.to_string()),
                                             };
@@ -700,7 +700,7 @@ impl AcpThreadView {
                                         
                                         let proto_activity = proto::AgentActivity {
                                             user_id,
-                                            agent_type: event.agent_type.as_ref().map(|s| s.to_string()).unwrap_or_default(),
+                                            agent_type: event.agent_type.as_ref().map(|s| s.to_string()).unwrap_or_else(|| "Unknown".to_string()),
                                             status: match event.status {
                                                 AgentActivityStatus::Active => proto::AgentActivityStatus::AgentActive as i32,
                                                 AgentActivityStatus::Idle => proto::AgentActivityStatus::AgentIdle as i32,

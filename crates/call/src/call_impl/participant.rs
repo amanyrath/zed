@@ -71,7 +71,7 @@ pub struct AgentActivity {
     pub prompt_summary: Option<SharedString>,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum AgentActivityStatus {
     Idle,
     Active,

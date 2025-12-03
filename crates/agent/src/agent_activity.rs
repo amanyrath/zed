@@ -1,3 +1,4 @@
+pub use call::participant::AgentActivityStatus;
 use gpui::{Context, EventEmitter, SharedString, Task};
 use language_model::LanguageModel;
 use std::sync::Arc;
@@ -12,12 +13,6 @@ pub struct AgentActivityTracker {
     pending_summarization: Option<Task<()>>,
 }
 
-#[derive(Clone, Debug, Default, PartialEq)]
-pub enum AgentActivityStatus {
-    #[default]
-    Idle,
-    Active,
-}
 
 /// Event emitted when agent activity status changes.
 pub struct ActivityStatusChanged {
@@ -61,7 +56,7 @@ impl AgentActivityTracker {
         self.status = AgentActivityStatus::Active;
         self.agent_type = Some(model.upstream_provider_name().0);
         cx.emit(ActivityStatusChanged {
-            status: self.status.clone(),
+            status: self.status,
             agent_type: self.agent_type.clone(),
             prompt_summary: self.prompt_summary.clone(),
         });
@@ -73,7 +68,7 @@ impl AgentActivityTracker {
     pub fn set_active_status(&mut self, cx: &mut Context<Self>) {
         self.status = AgentActivityStatus::Active;
         cx.emit(ActivityStatusChanged {
-            status: self.status.clone(),
+            status: self.status,
             agent_type: self.agent_type.clone(),
             prompt_summary: self.prompt_summary.clone(),
         });
@@ -85,7 +80,7 @@ impl AgentActivityTracker {
         self.status = AgentActivityStatus::Idle;
         self.pending_summarization = None;
         cx.emit(ActivityStatusChanged {
-            status: self.status.clone(),
+            status: self.status,
             agent_type: self.agent_type.clone(),
             prompt_summary: self.prompt_summary.clone(),
         });

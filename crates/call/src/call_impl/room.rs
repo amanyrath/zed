@@ -667,19 +667,18 @@ impl Room {
         mut cx: AsyncApp,
     ) -> Result<()> {
         this.update(&mut cx, |this, cx| {
-            if let Some(activity) = envelope.payload.activity {
-                let user_id = activity.user_id;
-                if let Some(participant) = this.remote_participants.get_mut(&user_id) {
-                    participant.agent_activity = Some(AgentActivity {
-                        agent_type: activity.agent_type.into(),
-                        status: if activity.status == proto::AgentActivityStatus::AgentActive as i32
-                        {
-                            AgentActivityStatus::Active
-                        } else {
-                            AgentActivityStatus::Idle
-                        },
-                        prompt_summary: activity.prompt_summary.map(|s| s.into()),
-                    });
+                if let Some(activity) = envelope.payload.activity {
+                    let user_id = activity.user_id;
+                    if let Some(participant) = this.remote_participants.get_mut(&user_id) {
+                        participant.agent_activity = Some(AgentActivity {
+                            agent_type: activity.agent_type.into(),
+                            status: if activity.status == proto::AgentActivityStatus::AgentActive as i32 {
+                                AgentActivityStatus::Active
+                            } else {
+                                AgentActivityStatus::Idle
+                            },
+                            prompt_summary: activity.prompt_summary.map(|s| s.into()),
+                        });
                     cx.emit(Event::ParticipantAgentActivityChanged {
                         peer_id: participant.peer_id,
                     });

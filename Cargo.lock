@@ -148,6 +148,7 @@ dependencies = [
  "agent_settings",
  "anyhow",
  "assistant_text_thread",
+ "call",
  "chrono",
  "client",
  "clock",
