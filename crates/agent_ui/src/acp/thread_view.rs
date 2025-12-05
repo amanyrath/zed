@@ -6,8 +6,8 @@ use acp_thread::{
 use acp_thread::{AgentConnection, Plan};
 use action_log::{ActionLog, ActionLogTelemetry};
 use agent::{
-    ActivityStatusChanged, AgentActivityStatus, DbThreadMetadata, HistoryEntry, HistoryEntryId,
-    HistoryStore, NativeAgentConnection, NativeAgentServer,
+    ActivityStatusChanged, AgentActivityStatus, AgentDocWritten, DbThreadMetadata, HistoryEntry,
+    HistoryEntryId, HistoryStore, NativeAgentConnection, NativeAgentServer,
 };
 use agent_client_protocol::{self as acp, PromptCapabilities};
 use agent_servers::{AgentServer, AgentServerDelegate};
@@ -693,11 +693,11 @@ impl AcpThreadView {
                                             Some(room) => room,
                                             None => return,
                                         };
-                                        
+
                                         let Some(user_id) = client.user_id() else {
                                             return;
                                         };
-                                        
+
                                         let proto_activity = proto::AgentActivity {
                                             user_id,
                                             agent_type: event.agent_type.as_ref().map(|s| s.to_string()).unwrap_or_else(|| "Unknown".to_string()),
@@ -707,9 +707,28 @@ impl AcpThreadView {
                                             },
                                             prompt_summary: event.prompt_summary.as_ref().map(|s| s.to_string()),
                                         };
-                                        
+
                                         room.update(cx, |room, cx| {
                                             room.update_agent_activity(proto_activity, cx).log_err();
+                                        });
+                                    }
+                                ));
+
+                                // Subscribe to agent doc writes for collaborative sync
+                                subscriptions.push(cx.subscribe(
+                                    &activity_tracker,
+                                    move |_this, _tracker, event: &AgentDocWritten, cx| {
+                                        // Broadcast agent doc write to room participants
+                                        let room = match ActiveCall::try_global(cx)
+                                            .and_then(|call| call.read(cx).room().cloned())
+                                        {
+                                            Some(room) => room,
+                                            None => return,
+                                        };
+
+                                        let path = event.path.to_string_lossy().to_string();
+                                        room.update(cx, |room, _cx| {
+                                            room.send_agent_doc_changed(path, _cx).log_err();
                                         });
                                     }
                                 ));

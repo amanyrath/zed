@@ -13,6 +13,8 @@ actions!(agent_debug_panel, [ToggleFocus]);
 
 pub struct AgentDebugPanel {
     width: Option<gpui::Pixels>,
+    focus_handle: FocusHandle,
+    #[allow(dead_code)]
     workspace: WeakEntity<Workspace>,
     #[allow(dead_code)]
     active_call: Option<Entity<ActiveCall>>,
@@ -48,6 +50,7 @@ impl AgentDebugPanel {
 
         Self {
             width: Some(px(400.0)),
+            focus_handle: cx.focus_handle(),
             workspace: workspace.weak_handle(),
             active_call,
             _subscriptions: subscriptions,
@@ -67,11 +70,8 @@ impl AgentDebugPanel {
 }
 
 impl Focusable for AgentDebugPanel {
-    fn focus_handle(&self, cx: &App) -> FocusHandle {
-        self.workspace
-            .upgrade()
-            .map(|workspace| workspace.read(cx).focus_handle(cx))
-            .unwrap_or_else(|| cx.focus_handle())
+    fn focus_handle(&self, _cx: &App) -> FocusHandle {
+        self.focus_handle.clone()
     }
 }
 

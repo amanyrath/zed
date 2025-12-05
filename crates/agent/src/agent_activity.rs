@@ -1,6 +1,7 @@
 pub use call::participant::AgentActivityStatus;
 use gpui::{Context, EventEmitter, SharedString, Task};
 use language_model::LanguageModel;
+use std::path::PathBuf;
 use std::sync::Arc;
 
 /// Tracks agent activity status for a session and handles prompt summarization.
@@ -21,7 +22,14 @@ pub struct ActivityStatusChanged {
     pub prompt_summary: Option<SharedString>,
 }
 
+/// Event emitted when an agent writes to the .agent-docs/ directory.
+pub struct AgentDocWritten {
+    /// The path that was written, relative to the project root.
+    pub path: PathBuf,
+}
+
 impl EventEmitter<ActivityStatusChanged> for AgentActivityTracker {}
+impl EventEmitter<AgentDocWritten> for AgentActivityTracker {}
 
 impl AgentActivityTracker {
     pub fn new() -> Self {
@@ -79,6 +87,24 @@ impl AgentActivityTracker {
     pub fn set_idle(&mut self, cx: &mut Context<Self>) {
         self.status = AgentActivityStatus::Idle;
         self.pending_summarization = None;
+        cx.emit(ActivityStatusChanged {
+            status: self.status,
+            agent_type: self.agent_type.clone(),
+            prompt_summary: self.prompt_summary.clone(),
+        });
+        cx.notify();
+    }
+
+    /// Notify that a file was written to the .agent-docs/ directory.
+    /// This emits an event that can be subscribed to for broadcasting to room participants.
+    pub fn notify_doc_written(&mut self, path: PathBuf, cx: &mut Context<Self>) {
+        cx.emit(AgentDocWritten { path });
+    }
+
+    /// Update the prompt summary (thread title) and re-emit status.
+    /// This is called when the thread's title is generated to update the activity display.
+    pub fn set_prompt_summary(&mut self, summary: SharedString, cx: &mut Context<Self>) {
+        self.prompt_summary = Some(summary);
         cx.emit(ActivityStatusChanged {
             status: self.status,
             agent_type: self.agent_type.clone(),

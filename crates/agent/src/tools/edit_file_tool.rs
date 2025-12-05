@@ -466,6 +466,11 @@ impl AgentTool for EditFileTool {
                 }
             }
 
+            // Notify if a file in .agent-docs/ was written (for collaborative agent sync)
+            if is_agent_doc_path(&input.path) {
+                event_stream.notify_agent_doc_written(input.path.clone());
+            }
+
             let new_snapshot = buffer.read_with(cx, |buffer, _cx| buffer.snapshot())?;
             let (new_text, unified_diff) = cx
                 .background_spawn({
@@ -601,6 +606,13 @@ fn resolve_path(
             new_file_path.context("Can't create file")
         }
     }
+}
+
+/// Check if a path is within the .agent-docs/ directory.
+/// This is used to detect writes that should be broadcast to collaborating agents.
+fn is_agent_doc_path(path: &Path) -> bool {
+    path.components()
+        .any(|c| c.as_os_str() == ".agent-docs")
 }
 
 #[cfg(test)]

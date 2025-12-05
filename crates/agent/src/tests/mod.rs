@@ -821,7 +821,7 @@ async fn expect_tool_call(events: &mut UnboundedReceiver<Result<ThreadEvent>>) -
             .unwrap();
         match event {
             ThreadEvent::ToolCall(tool_call) => return tool_call,
-            ThreadEvent::ActivityChanged { .. } => continue,
+            ThreadEvent::ActivityChanged { .. } | ThreadEvent::AgentDocWritten { .. } => continue,
             event => {
                 panic!("Unexpected event {event:?}");
             }
@@ -842,7 +842,7 @@ async fn expect_tool_call_update_fields(
             ThreadEvent::ToolCallUpdate(acp_thread::ToolCallUpdate::UpdateFields(update)) => {
                 return update
             }
-            ThreadEvent::ActivityChanged { .. } => continue,
+            ThreadEvent::ActivityChanged { .. } | ThreadEvent::AgentDocWritten { .. } => continue,
             event => {
                 panic!("Unexpected event {event:?}");
             }

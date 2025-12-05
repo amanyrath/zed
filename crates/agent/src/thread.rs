@@ -558,6 +558,11 @@ pub enum ThreadEvent {
         active: bool,
         agent_type: Option<SharedString>,
     },
+    /// Emitted when a file is written to the .agent-docs/ directory.
+    AgentDocWritten {
+        /// The relative path within the project.
+        path: PathBuf,
+    },
 }
 
 #[derive(Debug)]
@@ -1185,6 +1190,13 @@ impl Thread {
         self.cancel(cx);
 
         let model = self.model.clone().context("No language model configured")?;
+
+        // Trigger eager title generation when work starts (if we don't have a title yet)
+        // This provides immediate feedback to collaborators about what the agent is working on
+        if self.title.is_none() && self.pending_title_generation.is_none() {
+            self.generate_title(cx);
+        }
+
         let profile = AgentSettings::get_global(cx)
             .profiles
             .get(&self.profile_id)
@@ -2449,6 +2461,12 @@ impl ThreadEventStream {
             .unbounded_send(Ok(ThreadEvent::ActivityChanged { active, agent_type }))
             .ok();
     }
+
+    fn send_agent_doc_written(&self, path: PathBuf) {
+        self.0
+            .unbounded_send(Ok(ThreadEvent::AgentDocWritten { path }))
+            .ok();
+    }
 }
 
 #[derive(Clone)]
@@ -2559,6 +2577,12 @@ impl ToolCallEventStream {
             "allow" => Ok(()),
             _ => Err(anyhow!("Permission to run tool denied by user")),
         })
+    }
+
+    /// Notify that a file was written to the .agent-docs/ directory.
+    /// This is used for collaborative agent sync.
+    pub fn notify_agent_doc_written(&self, path: PathBuf) {
+        self.stream.send_agent_doc_written(path);
     }
 }
 

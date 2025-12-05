@@ -4,6 +4,7 @@ use call::Room;
 use client::ChannelId;
 use gpui::{Entity, TestAppContext};
 
+mod agent_sync_tests;
 mod channel_buffer_tests;
 mod channel_guest_tests;
 mod channel_tests;

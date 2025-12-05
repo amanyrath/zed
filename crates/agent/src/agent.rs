@@ -12,7 +12,9 @@ mod tools;
 #[cfg(test)]
 mod tests;
 
-pub use agent_activity::{ActivityStatusChanged, AgentActivityStatus, AgentActivityTracker};
+pub use agent_activity::{
+    ActivityStatusChanged, AgentActivityStatus, AgentActivityTracker, AgentDocWritten,
+};
 pub use db::*;
 pub use history_store::*;
 pub use native_agent_server::NativeAgentServer;
@@ -549,8 +551,15 @@ impl NativeAgent {
         let Some(session) = self.sessions.get(session_id) else {
             return;
         };
+        let title = thread.read(cx).title();
         let thread = thread.downgrade();
         let acp_thread = session.acp_thread.clone();
+
+        // Update activity tracker with the new title for collaborative display
+        self.activity_tracker.update(cx, |tracker, cx| {
+            tracker.set_prompt_summary(title.clone(), cx);
+        });
+
         cx.spawn(async move |_, cx| {
             let title = thread.read_with(cx, |thread, _| thread.title())?;
             let task = acp_thread.update(cx, |acp_thread, cx| acp_thread.set_title(title, cx))?;
@@ -894,6 +903,11 @@ impl NativeAgentConnection {
                                     } else {
                                         tracker.set_idle(cx);
                                     }
+                                })?;
+                            }
+                            ThreadEvent::AgentDocWritten { path } => {
+                                activity_tracker.update(cx, |tracker, cx| {
+                                    tracker.notify_doc_written(path, cx);
                                 })?;
                             }
                         }

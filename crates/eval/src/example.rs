@@ -342,6 +342,9 @@ impl ExampleContext {
                         }
                         acp::StopReason::Cancelled => return Err(anyhow!("Cancelled")),
                     },
+                    ThreadEvent::ActivityChanged { .. } | ThreadEvent::AgentDocWritten { .. } => {
+                        // Collaboration sync events - not relevant for eval
+                    }
                 }
             }
             Ok(messages)
